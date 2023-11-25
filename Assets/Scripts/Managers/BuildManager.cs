@@ -6,10 +6,15 @@ public class BuildManager : MonoBehaviour
 {
     public static BuildManager Instance { get; private set; }
 
+    [Header("UI Elements")]
+    public NodeUI nodeUI;
+
     [Header("Prefabs")]
     public GameObject buildEffect;
 
     private TurretBlueprint turretToBuild;
+    private Node selectedNode;
+
     public bool CanBuild { get { return turretToBuild!= null; } }
     public bool HasMoney { get { return PlayerStats.Money >= turretToBuild.cost; } }
 
@@ -19,28 +24,32 @@ public class BuildManager : MonoBehaviour
         Instance = this;
     }
 
+    public void SelectNode(Node node)
+    {
+        if (selectedNode == node)
+        {
+            DeselectNode();
+            return;
+        }
+        selectedNode = node;
+        turretToBuild = null;
+
+        nodeUI.SetTarget(node);
+    }
+
+    public void DeselectNode()
+    {
+        selectedNode = null;
+        nodeUI.Hide();
+    }
+
     public void SelectTurretToBuild(TurretBlueprint turret)
     {
         turretToBuild = turret;
+        DeselectNode();
     }
+
+    public TurretBlueprint GetTurretToBuild() => turretToBuild;
 
     public GameObject GetSelectedTurret() => turretToBuild.prefab;
-
-    public void BuildTurretOnNode(Node node)
-    {
-        if (PlayerStats.Money < turretToBuild.cost)
-        {
-            Debug.Log("Not enough gold!");
-            return;
-        }
-        else
-        {
-            PlayerStats.RemoveMoney(turretToBuild.cost);
-        }
-
-        GameObject turret = Instantiate(turretToBuild.prefab, node.GetBuildPosition(), Quaternion.identity);
-        GameObject buildEffectInstance = Instantiate(buildEffect, node.GetBuildPosition(), Quaternion.identity);
-        node.turret = turret;
-        Destroy(buildEffectInstance, 1.5f);
-    }
 }
