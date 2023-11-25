@@ -1,10 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyHealth : MonoBehaviour
 {
-    [SerializeField] private float health = 100;
+    [SerializeField] private float maxHealth = 100;
+    private float health;
+
+    [SerializeField] private Image HPBar;
     [SerializeField] private GameObject deathEffect;
 
     private EnemyValue enemyValue;
@@ -12,16 +14,23 @@ public class EnemyHealth : MonoBehaviour
     private void Start()
     {
         enemyValue = GetComponent<EnemyValue>();
+        health = maxHealth;
     }
 
     public void TakeDamage(float amount)
     {
         health -= amount;
+        UpdateHPBar();
 
         if (health <= 0)
         {
             Die();
         }
+    }
+
+    private void UpdateHPBar()
+    {
+        HPBar.fillAmount = health / maxHealth;
     }
 
     private void Die()
